@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 
@@ -19,10 +20,10 @@ public class BoardDAO {
 	private PreparedStatement stmt = null;
 	private ResultSet rs = null;
 	
-	private final String BAORD_INSERT = "insert into board(seq,title,writer,content) values((select nvl(max(seq),0)+1 from board),?,?,?)";
-	private final String BOARD_UPDATE = "update board set title=?,content=?,where seq=?";
-	private final String BOARD_DELETE = "delete * from board where seq=?;";
-	private final String BAORD_GET = "select * from board where seq=?";
+	private final String BOARD_INSERT = "insert into board(seq,title,writer,content) values((select max(seq)+1 from board ALIAS_FOR_SUBQUERY),?,?,?);";
+	private final String BOARD_UPDATE = "update board set title=?,content=? where seq=?";
+	private final String BOARD_DELETE = "delete  from board where seq=?;";
+	private final String BOARD_GET = "select * from board where seq=?";
 	private final String BOARD_LIST = "select * from board order by seq desc";
 	
 	
@@ -33,7 +34,7 @@ public class BoardDAO {
 		System.out.println("---> JDBC insertBoard() 기능처리 ");
 		try {
 			conn = JDBCUtil.getConnection();
-			stmt = conn.prepareStatement(BAORD_INSERT);
+			stmt = conn.prepareStatement(BOARD_INSERT);
 			stmt.setString(1, vo.getTitle());
 			stmt.setString(2, vo.getWriter());
 			stmt.setString(3, vo.getContent());
@@ -41,7 +42,7 @@ public class BoardDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			JDBCUtil.close(rs,stmt, conn);
+			JDBCUtil.close(stmt, conn);
 		}
 	}
 	
@@ -58,7 +59,7 @@ public class BoardDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			JDBCUtil.close(rs,stmt, conn);
+			JDBCUtil.close(stmt, conn);
 		}
 	}
 	
@@ -75,7 +76,7 @@ public class BoardDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			JDBCUtil.close(rs,stmt, conn);
+			JDBCUtil.close(stmt, conn);
 		}
 	}
 	//글 상세 조회
@@ -84,7 +85,7 @@ public class BoardDAO {
 		BoardVO board = null;
 		try {
 			conn = JDBCUtil.getConnection();
-			stmt = conn.prepareStatement(BAORD_GET);
+			stmt = conn.prepareStatement(BOARD_GET);
 			stmt.setInt(1, vo.getSeq());
 			rs = stmt.executeQuery();
 			if(rs.next()) {
@@ -93,12 +94,13 @@ public class BoardDAO {
 				board.setTitle(rs.getString("TITLE"));
 				board.setContent(rs.getString("CONTENT"));
 				board.setRegDate(rs.getDate("REGDATE"));
+				board.setWriter(rs.getString("WRITER"));
 				board.setCnt(rs.getInt("CNT"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			JDBCUtil.close(rs, stmt, conn);
+			JDBCUtil.close(stmt, conn);
 		}
 		
 		return board;
@@ -107,7 +109,7 @@ public class BoardDAO {
 	//글 목록 조회
 	public List<BoardVO> getBoardList(BoardVO vo){
 		System.out.println("--->JDBC getBoardList 기능처리 ");
-		List<BoardVO> boardList = null;
+		List<BoardVO> boardList = new ArrayList<BoardVO>();
 	
 		
 		try {
@@ -122,6 +124,8 @@ public class BoardDAO {
 				board.setContent(rs.getString("CONTENT"));
 				board.setRegDate(rs.getDate("REGDATE"));
 				board.setCnt(rs.getInt("CNT"));
+				board.setWriter(rs.getString("WRITER"));
+				System.out.println("boardDAO");
 				boardList.add(board);	
 			}
 		} catch (Exception e) {

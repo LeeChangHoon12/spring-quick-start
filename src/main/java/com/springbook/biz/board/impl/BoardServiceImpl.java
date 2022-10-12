@@ -10,13 +10,18 @@ import com.springbook.biz.board.BoardService;
 import com.springbook.biz.board.BoardVO;
 
 
+
 @Service("boardService")
 public class BoardServiceImpl implements BoardService{
+	
 	@Autowired
-	private BoardDAO boardDAO;
-
+	private BoardDAOSpring boardDAO;
+	//private LogAdvice log;
+	
+	
 	@Override
 	public void insertBoard(BoardVO vo) {
+		//log.printLog();
 		boardDAO.insertBoard(vo);
 		
 		
@@ -24,20 +29,21 @@ public class BoardServiceImpl implements BoardService{
 
 	@Override
 	public void updateBoard(BoardVO vo) {
-		// TODO Auto-generated method stub
-		boardDAO.updatBoard(vo);
+		//log.printLog();
+		boardDAO.updateBoard(vo);
 		
 	}
 
 	@Override
 	public void deleteBoard(BoardVO vo) {
+		//log.printLog();
 		boardDAO.deleteBoard(vo);
 		
 	}
 
 	@Override
 	public List<BoardVO> getBoardList(BoardVO vo) {
-		// TODO Auto-generated method stub
+
 		return boardDAO.getBoardList(vo);
 	}
 	

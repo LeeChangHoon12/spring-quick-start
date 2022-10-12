@@ -45,7 +45,7 @@ public class UserDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			JDBCUtil.close(rs,stmt,conn);
+			JDBCUtil.close(stmt,conn);
 		}
 		return user;
 	}
